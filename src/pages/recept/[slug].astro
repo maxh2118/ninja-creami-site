@@ -2,24 +2,27 @@
 import Layout from '../../layouts/Layout.astro';
 import ShareButton from '../../components/ShareButton.jsx';
 
-const { slug } = Astro.params;
-const apiBase = import.meta.env.PUBLIC_API_URL;
-let recipe = null;
-try {
-	const response = await fetch(`${apiBase}/api/recipes/${slug}`);
-	if(response.ok) {
-		recipe = await response.json();
-	}
-} catch (e) {
-	console.error(e);
+// Dit is de "boodschappenlijst" voor Astro
+export async function getStaticPaths() {
+  const apiBase = import.meta.env.PUBLIC_API_URL;
+  const response = await fetch(`${apiBase}/api/recipes`);
+  const recipes = await response.json();
+
+  return recipes.map((recipe) => ({
+    params: { slug: recipe.slug },
+    props: { recipe }, // We geven het recept direct door als 'prop'
+  }));
 }
+
+// Haal de props op die door getStaticPaths zijn doorgegeven
+const { recipe } = Astro.props;
 ---
 
 <Layout title={recipe ? recipe.title : 'Recept niet gevonden'}>
 	{recipe ? (
 		<article>
 			<h1 class="text-5xl font-serif-display mb-4">{recipe.title}</h1>
-			<div class="flex items-center space-x-4 mb-8 text-gray-600">
+			<div class="flex flex-wrap items-center gap-x-4 gap-y-2 mb-8 text-gray-600">
 				<span><strong>Categorie:</strong> {recipe.category}</span>
 				<span><strong>Tijd:</strong> {recipe.prep_time}</span>
 				<span><strong>Stand:</strong> {recipe.creami_function}</span>
@@ -42,8 +45,7 @@ try {
 
 				<section class="md:col-span-2">
 					<h2 class="text-3xl font-serif-display mb-4">Bereiding</h2>
-					<div class="prose max-w-none text-lg">
-						{recipe.instructions}
+					<div class="prose max-w-none text-lg" set:html={recipe.instructions}>
 					</div>
 				</section>
 			</div>
