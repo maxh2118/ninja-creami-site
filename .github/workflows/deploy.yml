@@ -7,45 +7,31 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout je repository
         uses: actions/checkout@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
+
       - name: Installeer dependencies
         run: npm install
+
       - name: Bouw de website
         run: npm run build
         env:
-          # Geef de environment variable door aan het build script
           PUBLIC_API_URL: ${{ secrets.PUBLIC_API_URL }}
-          # Definieer de site/base variabelen
-          PUBLIC_SITE_URL: https://maxh2118.github.io
-          PUBLIC_BASE_URL: /ninja-creami-site/
-      - name: DIAGNOSE - Lijst de inhoud van de build-map op
-        run: ls -R dist
-      - name: Upload de build artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./dist
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy naar GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Deploy naar gh-pages branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
