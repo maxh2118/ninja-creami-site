@@ -6,7 +6,6 @@ on:
       - main
   workflow_dispatch:
 
-# Zet de permissies voor de job
 permissions:
   contents: read
   pages: write
@@ -26,10 +25,15 @@ jobs:
       - name: Installeer dependencies
         run: npm install
       - name: Bouw de website
-        # Geef de environment variable hier door aan het build script
         run: npm run build
         env:
+          # Geef de environment variable door aan het build script
           PUBLIC_API_URL: ${{ secrets.PUBLIC_API_URL }}
+          # Definieer de site/base variabelen
+          PUBLIC_SITE_URL: https://maxh2118.github.io
+          PUBLIC_BASE_URL: /ninja-creami-site/
+      - name: DIAGNOSE - Lijst de inhoud van de build-map op
+        run: ls -R dist
       - name: Upload de build artifact
         uses: actions/upload-pages-artifact@v3
         with:
