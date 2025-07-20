@@ -2,19 +2,39 @@
 import Layout from '../../layouts/Layout.astro';
 import ShareButton from '../../components/ShareButton.jsx';
 
-// Dit is de "boodschappenlijst" voor Astro
 export async function getStaticPaths() {
   const apiBase = import.meta.env.PUBLIC_API_URL;
-  const response = await fetch(`${apiBase}/api/recipes`);
-  const recipes = await response.json();
+  
+  try {
+    const response = await fetch(`${apiBase}/api/recipes`);
 
-  return recipes.map((recipe) => ({
-    params: { slug: recipe.slug },
-    props: { recipe }, // We geven het recept direct door als 'prop'
-  }));
+    // CONTROLE: Was de API-aanroep succesvol?
+    if (!response.ok) {
+      // Als de API een fout geeft (bv. 500), gooi een duidelijke error.
+      throw new Error(`Failed to fetch recipes. Status: ${response.status}`);
+    }
+
+    const recipes = await response.json();
+
+    // CONTROLE: Is 'recipes' wel een array?
+    if (!Array.isArray(recipes)) {
+      console.warn('API did not return an array for recipes. Skipping page generation.');
+      return []; // Geef een lege lijst terug, genereer geen pagina's.
+    }
+    
+    // Als alles goed is, maak de pagina's aan.
+    return recipes.map((recipe) => ({
+      params: { slug: recipe.slug },
+      props: { recipe },
+    }));
+
+  } catch (error) {
+    console.error("Error in getStaticPaths:", error);
+    // Voorkom dat de build faalt door een lege array terug te geven.
+    return [];
+  }
 }
 
-// Haal de props op die door getStaticPaths zijn doorgegeven
 const { recipe } = Astro.props;
 ---
 
@@ -51,6 +71,6 @@ const { recipe } = Astro.props;
 			</div>
 		</article>
 	) : (
-		<p>Dit recept kon niet worden gevonden.</p>
+		<p>Dit recept kon niet worden gevonden of er zijn nog geen recepten gepubliceerd.</p>
 	)}
 </Layout>
