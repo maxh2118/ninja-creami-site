@@ -1,14 +1,11 @@
 name: Deploy to GitHub Pages
 
 on:
-  # Draait wanneer je een push doet naar de 'main' branch
   push:
     branches:
       - main
-  # Staat je toe om deze workflow handmatig te starten vanaf de Actions tab
   workflow_dispatch:
 
-# Staat toe dat deze job de gh-pages branch mag schrijven
 permissions:
   contents: read
   pages: write
@@ -22,10 +19,9 @@ jobs:
         uses: actions/checkout@v4
       - name: Install, build, and upload your site
         uses: withastro/action@v2
-        # with:
-          # path: . # The root location of your project
-          # node-version: 20 # optional
-          # package-manager: npm # optional
+        env:
+          # Geef het geheim door aan het build proces
+          PUBLIC_API_URL: ${{ secrets.PUBLIC_API_URL }}
 
   deploy:
     needs: build
