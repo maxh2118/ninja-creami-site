@@ -3,10 +3,13 @@ import React, { useState, useEffect } from 'react';
 // De API URL wordt hier direct uit de environment gehaald
 const API_URL = import.meta.env.PUBLIC_API_URL + '/api/recipes';
 
-// Dit is de Astro RecipeCard component, maar dan in React.
+// Dit is de RecipeCard, nu als een correcte React-component.
 function RecipeCard({ recipe }) {
+  // We construeren de link handmatig omdat we niet meer in een .astro bestand zitten
+  const recipeLink = `/ninja-creami-site/recept/${recipe.slug}`;
+
   return (
-    <a href={`/ninja-creami-site/recept/${recipe.slug}`} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 block">
+    <a href={recipeLink} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 block">
       <div className="p-6">
         <p className="text-sm text-ice-green font-bold mb-2">{recipe.category}</p>
         <h3 className="text-2xl font-serif-display mb-3">{recipe.title}</h3>
@@ -55,7 +58,7 @@ export default function RecipeList() {
       {recipes.length > 0 ? (
         recipes.map(recipe => <RecipeCard key={recipe.id} recipe={recipe} />)
       ) : (
-        <p className="col-span-full text-center">Geen recepten gevonden. Voeg er een toe of kom later terug!</p>
+        <p className="col-span-full text-center">Nog geen recepten gepubliceerd. Voeg er een toe via het admin-paneel!</p>
       )}
     </div>
   );
