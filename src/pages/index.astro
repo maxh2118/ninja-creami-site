@@ -1,0 +1,14 @@
+---
+import Layout from '../layouts/Layout.astro';
+import RecipeList from '../components/RecipeList.jsx';
+---
+
+<Layout title="Ambachtelijke IJsrecepten">
+	<div class="text-center mb-12">
+		<h1 class="text-5xl font-serif-display mb-4">Ambachtelijke IJsrecepten</h1>
+		<p class="text-lg">Ontdek de lekkerste recepten voor je Ninja Creami.</p>
+	</div>
+
+	<RecipeList client:load />
+
+</Layout>
