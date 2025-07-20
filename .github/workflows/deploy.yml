@@ -28,6 +28,7 @@ jobs:
       - name: Bouw de website
         run: npm run build
         env:
+          # De PUBLIC_API_URL is de enige die we hier nodig hebben
           PUBLIC_API_URL: ${{ secrets.PUBLIC_API_URL }}
 
       - name: Deploy naar gh-pages branch
