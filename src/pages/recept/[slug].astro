@@ -1,0 +1,54 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ShareButton from '../../components/ShareButton.jsx';
+
+const { slug } = Astro.params;
+const apiBase = import.meta.env.PUBLIC_API_URL;
+let recipe = null;
+try {
+	const response = await fetch(`${apiBase}/api/recipes/${slug}`);
+	if(response.ok) {
+		recipe = await response.json();
+	}
+} catch (e) {
+	console.error(e);
+}
+---
+
+<Layout title={recipe ? recipe.title : 'Recept niet gevonden'}>
+	{recipe ? (
+		<article>
+			<h1 class="text-5xl font-serif-display mb-4">{recipe.title}</h1>
+			<div class="flex items-center space-x-4 mb-8 text-gray-600">
+				<span><strong>Categorie:</strong> {recipe.category}</span>
+				<span><strong>Tijd:</strong> {recipe.prep_time}</span>
+				<span><strong>Stand:</strong> {recipe.creami_function}</span>
+				<ShareButton client:load recipeId={recipe.id} initialCount={recipe.share_count} />
+			</div>
+      {recipe.submitter_name && <p class="mb-8 italic text-gray-500">✍️ Ingezonden door: {recipe.submitter_name}</p>}
+
+			<div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+				<aside class="md:col-span-1 md:sticky top-24 h-fit bg-white/50 backdrop-blur-sm p-6 rounded-lg shadow-sm">
+					<h2 class="text-3xl font-serif-display mb-4">Ingrediënten</h2>
+					<ul class="space-y-2">
+						{JSON.parse(recipe.ingredients).map(ing => (
+							<li class="flex justify-between">
+								<span>{ing.name}</span>
+								<span class="font-bold">{ing.amount}</span>
+							</li>
+						))}
+					</ul>
+				</aside>
+
+				<section class="md:col-span-2">
+					<h2 class="text-3xl font-serif-display mb-4">Bereiding</h2>
+					<div class="prose max-w-none text-lg">
+						{recipe.instructions}
+					</div>
+				</section>
+			</div>
+		</article>
+	) : (
+		<p>Dit recept kon niet worden gevonden.</p>
+	)}
+</Layout>
