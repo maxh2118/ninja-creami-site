@@ -6,6 +6,7 @@ on:
       - main
   workflow_dispatch:
 
+# Zet de permissies voor de job
 permissions:
   contents: read
   pages: write
@@ -15,13 +16,24 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout your repository using git
+      - name: Checkout je repository
         uses: actions/checkout@v4
-      - name: Install, build, and upload your site
-        uses: withastro/action@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - name: Installeer dependencies
+        run: npm install
+      - name: Bouw de website
+        # Geef de environment variable hier door aan het build script
+        run: npm run build
         env:
-          # Geef het geheim door aan het build proces
           PUBLIC_API_URL: ${{ secrets.PUBLIC_API_URL }}
+      - name: Upload de build artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
 
   deploy:
     needs: build
@@ -30,6 +42,6 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy to GitHub Pages
+      - name: Deploy naar GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
